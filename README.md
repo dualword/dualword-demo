@@ -1,1 +1,3 @@
-# dualword-demo
+# dualword-demo repository
+
+Different demos.
