@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.dualword.android.notedemo.MainActivity">
+
+    <item
+        android:id="@+id/menu_add"
+        android:orderInCategory="10"
+        android:icon="@drawable/ic_menu_compose"
+        android:title="@string/menu_add"
+        android:alphabeticShortcut='a'
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_testdata"
+        android:orderInCategory="20"
+        android:title="@string/action_testdata"
+        android:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_resetdb"
+        android:orderInCategory="30"
+        android:title="@string/action_resetdb"
+        android:showAsAction="never" />
+
+</menu>

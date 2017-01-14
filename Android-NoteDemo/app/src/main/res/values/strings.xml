@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Android-NoteDemo</string>
+
+    <string name="menu_add">New note</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_delete">Delete</string>
+
+    <string name="title_activity_note_editor">Note Editor</string>
+
+    <string name="action_testdata">Create test data.</string>
+    <string name="action_resetdb">Clear database</string>
+
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+
+</resources>
