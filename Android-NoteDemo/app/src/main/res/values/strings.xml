@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android-NoteDemo</string>
+    <string name="app_name">NoteDemo</string>
 
     <string name="menu_add">New note</string>
     <string name="menu_save">Save</string>

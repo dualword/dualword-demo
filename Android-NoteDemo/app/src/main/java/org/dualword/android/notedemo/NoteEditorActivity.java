@@ -74,7 +74,7 @@ public class NoteEditorActivity extends AbsNoteActivity {
 
     public void delete() {
         printLog("delete...");
-        if(note.getId() != null) db.delete(note.getId());
+        if(note.getId() != null) db.delete(note);
         finish();
     }
 

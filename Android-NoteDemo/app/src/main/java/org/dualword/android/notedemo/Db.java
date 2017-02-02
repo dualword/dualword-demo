@@ -20,7 +20,6 @@ public class Db {
     private final Context ctx;
     private DBHelper helper;
     private SQLiteDatabase db;
-    Cursor cursor;
 
     public Db(Context ctx, boolean inMemory) {
         this.ctx = ctx;
@@ -37,17 +36,7 @@ public class Db {
     }
 
     public void close() {
-        if(cursor != null && !cursor.isClosed()) cursor.close();
         if (helper !=null) helper.close();
-    }
-
-    public Cursor getAll() {
-        if(cursor != null && !cursor.isClosed()){
-            cursor.close();
-            cursor = null;
-        }
-        cursor = db.query(DB_TABLE, null, null, null, null, null, null);
-        return cursor;
     }
 
     public void save(Note n) {
@@ -63,9 +52,12 @@ public class Db {
         }
     }
 
-    public void delete(Long id) {
-        db.delete(DB_TABLE, COLUMN_ID + " = " + id.toString(), null);
+    public void delete(Note n) {
+        db.delete(DB_TABLE, COLUMN_ID + " = " + n.getId().toString(), null);
     }
+
+    public Cursor getAll() { return db.query(DB_TABLE, null, null, null, null, null, null); }
+
     public void resetDb(){
         db.execSQL("DELETE FROM " + DB_TABLE + ";");
     }
@@ -74,7 +66,6 @@ public class Db {
 
         public DBHelper(Context context, String name, CursorFactory factory, int version) {
             super(context, name, factory, version);
-
         }
 
         @Override

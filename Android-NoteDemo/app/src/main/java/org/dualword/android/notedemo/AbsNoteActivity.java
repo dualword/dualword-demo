@@ -3,14 +3,17 @@ package org.dualword.android.notedemo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 abstract public class AbsNoteActivity extends Activity {
+    protected NoteApp app;
     protected Db db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = ((NoteApp)getApplication()).getDb();
+        app = (NoteApp)getApplication();
+        db = app.getDb();
         printLog("onCreate");
     }
 
@@ -43,6 +46,10 @@ abstract public class AbsNoteActivity extends Activity {
         super.onDestroy();
         printLog("onDestroy");
 
+    }
+
+    protected void showToast(String msg){
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     protected void printLog(String s){

@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -19,14 +18,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends AbsNoteActivity {
     private ListView mListView;
     private Cursor cursor;
-    private ProgressDialog loading;
-
-    NonsenseGenerator generator = new NonsenseGenerator();
+    private ProgressDialog progress;
+    SimpleCursorAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,31 +53,34 @@ public class MainActivity extends AbsNoteActivity {
             }
         });
 
-        loading = new ProgressDialog(this);
-        loading.setCancelable(true);
-        loading.setMessage("In progress...");
-        loading.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        String[] from = new String[] { Db.COLUMN_ID, Db.COLUMN_TXT };
+        int[] to = new int[] { R.id.note_id, R.id.note_text };
+        adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
+        mListView.setAdapter(adapter);
+        progress = new ProgressDialog(this);
+        progress.setCancelable(true);
+        progress.setMessage("In progress...");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setCanceledOnTouchOutside(false);
+
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         if(cursor != null)  {
             cursor.close();
             cursor = null;
         }
+        super.onStop();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         cursor = db.getAll();
-        printLog("rows:"+cursor.getCount());
-
-        String[] from = new String[] { Db.COLUMN_ID, Db.COLUMN_TXT };
-        int[] to = new int[] { R.id.note_id, R.id.note_text };
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
-        mListView.setAdapter(adapter);
+        showToast(cursor.getCount() + " notes in database.");
+        adapter.changeCursor(cursor);
+        app.setActivity(this);
     }
 
     @Override
@@ -112,7 +112,7 @@ public class MainActivity extends AbsNoteActivity {
         alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int btn) {
             db.resetDb();
-            cursor.requery();  }
+            hideProgress();  }
         } );
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int btn) {
@@ -127,7 +127,7 @@ public class MainActivity extends AbsNoteActivity {
         alert.setTitle("Create Notes");
         alert.setMessage("How many to create?");
         final EditText in = new EditText(this);
-        in.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+        in.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
         in.setInputType(InputType.TYPE_CLASS_NUMBER);
         in.setGravity(Gravity.CENTER_HORIZONTAL);
         alert.setView(in);
@@ -140,46 +140,29 @@ public class MainActivity extends AbsNoteActivity {
                 } catch (NumberFormatException e) {
                     return;
                 }
-                new CreateNotesTask().execute(j);
+                app.createRecords(j);
             }
         }
         );
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int btn) {
-                // Canceled.
+                    // Canceled.
+                }
             }
-        }
         );
         alert.show();
     }
 
-    private class CreateNotesTask extends AsyncTask<Integer, Integer, Long> {
-        Long t = System.currentTimeMillis();
-        @Override
-        protected Long doInBackground(Integer...nums) {
-            for (int i = 0; i < nums[0]; i++) {
-                Note n = new Note();
-                n.setText(generator.makeText(10));
-                db.save(n);
-            }
-            return 0L;
-        }
-        @Override
-        protected void onPreExecute() {
-            loading.show();
-        }
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            //setProgressPercent(progress[0]);
-        }
-        @Override
-        protected void onPostExecute(Long result) {
-            t = (System.currentTimeMillis() - t) / 1000;
-            Toast.makeText(getApplicationContext(), "Creating test data: " + t + " sec.",
-                    Toast.LENGTH_SHORT).show();
+    public void showProgress(){
+        progress.show();
+    }
+
+    public void hideProgress(){
+        if (cursor != null) {
             cursor.requery();
-            loading.dismiss();
+            showToast(cursor.getCount() + " notes in database.");
         }
+        progress.dismiss();
     }
 
 }
