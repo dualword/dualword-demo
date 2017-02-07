@@ -1,4 +1,4 @@
-# Android-NoteDemo
+# Android NoteDemo application
 
 http://github.com/dualword/dualword-demo/
 

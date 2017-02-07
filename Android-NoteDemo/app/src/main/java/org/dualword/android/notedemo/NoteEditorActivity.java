@@ -1,8 +1,6 @@
 package org.dualword.android.notedemo;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,18 +55,11 @@ public class NoteEditorActivity extends AbsNoteActivity {
     public void save() {
         printLog("save...");
         note.setText(((TextView) findViewById(R.id.note_text)).getText().toString());
-        db.save(note);
-
-        Notification.Builder mBuilder = new Notification.Builder(getApplication().getApplicationContext());
-        Notification n = mBuilder.setContentTitle("New note")
-                .setSmallIcon(R.drawable.live_folder_notes)
-                .setContentText("New note created.")
-                .getNotification();
-
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager.notify(1, n);
-
+        if(note.getText() != null && note.getText().trim().length() > 0){
+            Intent intent = new Intent(this, CreateNoteIService.class);
+            intent.putExtra("org.dualword.android.notedemo.note", note);
+            startService(intent);
+        }
         finish();
     }
 

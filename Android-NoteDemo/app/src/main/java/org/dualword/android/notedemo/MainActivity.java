@@ -2,12 +2,17 @@ package org.dualword.android.notedemo;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
@@ -24,6 +29,8 @@ public class MainActivity extends AbsNoteActivity {
     private Cursor cursor;
     private ProgressDialog progress;
     SimpleCursorAdapter adapter;
+    private BroadcastThreadReceiver rcv;
+    private boolean j;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,11 +64,17 @@ public class MainActivity extends AbsNoteActivity {
         int[] to = new int[] { R.id.note_id, R.id.note_text };
         adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
         mListView.setAdapter(adapter);
+
         progress = new ProgressDialog(this);
         progress.setCancelable(true);
         progress.setMessage("In progress...");
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setCanceledOnTouchOutside(false);
+
+        IntentFilter filter = new IntentFilter(NoteApp.INTENT_BROADCAST);
+        filter.addAction(NoteApp.INTENT_REQUERY);
+        rcv = new BroadcastThreadReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(rcv, filter);
 
     }
 
@@ -163,6 +176,24 @@ public class MainActivity extends AbsNoteActivity {
             showToast(cursor.getCount() + " notes in database.");
         }
         progress.dismiss();
+    }
+
+    private class BroadcastThreadReceiver extends BroadcastReceiver {
+        public BroadcastThreadReceiver() {
+        }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Log.d(getClass().getSimpleName(), "onReceive");
+            if(intent.getAction() == NoteApp.INTENT_BROADCAST){
+                getActionBar().setTitle(j==true? "NoteDemo" : "NoteDemo.");
+                j = !j;
+            }else if(intent.getAction() == NoteApp.INTENT_REQUERY){
+                if (cursor != null) {
+                    cursor.requery();
+                    showToast(cursor.getCount() + " notes in database.");
+                }
+            }
+        }
     }
 
 }

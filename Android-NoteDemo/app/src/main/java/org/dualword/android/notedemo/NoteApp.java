@@ -1,11 +1,16 @@
 package org.dualword.android.notedemo;
 
 import android.app.Application;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 public class NoteApp extends Application {
+    public static String INTENT_BROADCAST = "intent_broadcast";
+    public static String INTENT_REQUERY = "intent_requery";
+
     private Db db;
     private boolean inMemory;
     private AsyncTask task;
@@ -26,6 +31,11 @@ public class NoteApp extends Application {
         super.onCreate();
         Log.d(this.getClass().getSimpleName(), "onCreate");
         db.open();
+
+        startService(new Intent(this, NoteAppService.class));
+         //        stopService(new Intent(this, NoteAppService.class));
+
+        new BroadcastThread().start();
     }
 
     public void setActivity(MainActivity activity){
@@ -78,6 +88,36 @@ public class NoteApp extends Application {
                     Toast.LENGTH_SHORT).show();
             activity.hideProgress();
             cancel(true);
+        }
+    }
+
+//    private boolean isServiceRunning(Class<?> cls) {
+//        ActivityManager mgr = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo srv : mgr.getRunningServices(Integer.MAX_VALUE)) {
+//            if (cls.getName().equals(srv.service.getClassName())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    private class BroadcastThread extends Thread{
+        
+        @Override
+        public void run() {
+            super.run();
+
+            while (true){
+                Intent localIntent = new Intent(NoteApp.INTENT_BROADCAST);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+            }
+
         }
     }
 
