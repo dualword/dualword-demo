@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 abstract public class AbsNoteActivity extends Activity {
     protected NoteApp app;
-    protected Db db;
+    protected IDb db;
 
 //    protected NoteAppBService srv;
 //    protected final ServiceConnection mConnection = new ServiceConnection() {

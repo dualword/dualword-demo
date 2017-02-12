@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class Db {
+public class Db implements IDb {
     private boolean inMemory;
     private static final String DB_NAME = "notedemo";
     private static final int DB_VERSION = 3;
@@ -39,6 +39,7 @@ public class Db {
         if (helper !=null) helper.close();
     }
 
+    @Override
     public void save(Note n) {
         if(n.getId() == null){
             ContentValues cv = new ContentValues();
@@ -52,12 +53,30 @@ public class Db {
         }
     }
 
+    @Override
     public void delete(Note n) {
         db.delete(DB_TABLE, COLUMN_ID + " = " + n.getId().toString(), null);
     }
 
+    @Override
+    public void delete(Long id) {
+        db.delete(DB_TABLE, COLUMN_ID + " = " + id.toString(), null);
+    }
+
+    @Override
     public Cursor getAll() { return db.query(DB_TABLE, null, null, null, null, null, null); }
 
+    @Override
+    public int getCount() {
+        return db.query(DB_TABLE, null, null, null, null, null, null).getCount();
+    }
+
+    @Override
+    public Cursor search(String query){
+        return db.rawQuery("select * from note where txt like ?", new String[]{'%'+query+'%'});
+    }
+
+    @Override
     public void resetDb(){
         db.execSQL("DELETE FROM " + DB_TABLE + ";");
     }

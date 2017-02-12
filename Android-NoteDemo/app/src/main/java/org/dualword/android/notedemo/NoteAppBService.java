@@ -6,9 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-/**
- * Created by alex on 2/2/17.
- */
 public class NoteAppBService extends Service{
 
     private final IBinder binder = new LocalBinder();

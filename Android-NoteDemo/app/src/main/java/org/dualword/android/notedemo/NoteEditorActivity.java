@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 public class NoteEditorActivity extends AbsNoteActivity {
     private Note note;
+    private TextView id;
+    private TextView txt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,13 +17,14 @@ public class NoteEditorActivity extends AbsNoteActivity {
         setContentView(R.layout.activity_note_editor);
         getActionBar().setDisplayHomeAsUpEnabled(true);
 
+        id = (TextView)findViewById(R.id.note_id);
+        txt = (TextView)findViewById(R.id.note_text);
+
         if(getIntent() != null){
             note = (Note)getIntent().getSerializableExtra("org.dualword.android.notedemo.note");
             if(note != null){
-                TextView t1 = (TextView)findViewById(R.id.note_id);
-                t1.setText(note.getId().toString());
-                TextView t2 = (TextView)findViewById(R.id.note_text);
-                t2.setText(note.getText());
+                id.setText("Id:"+note.getId().toString());
+                txt.setText(note.getText());
             }else{
                 note = new Note();
             }
@@ -54,7 +57,7 @@ public class NoteEditorActivity extends AbsNoteActivity {
 
     public void save() {
         printLog("save...");
-        note.setText(((TextView) findViewById(R.id.note_text)).getText().toString());
+        note.setText(txt.getText().toString());
         if(note.getText() != null && note.getText().trim().length() > 0){
             Intent intent = new Intent(this, CreateNoteIService.class);
             intent.putExtra("org.dualword.android.notedemo.note", note);

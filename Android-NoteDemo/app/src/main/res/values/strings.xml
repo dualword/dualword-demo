@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">NoteDemo</string>
 
+    <string name="menu_search">Search</string>
     <string name="menu_add">New note</string>
     <string name="menu_save">Save</string>
     <string name="menu_delete">Delete</string>
@@ -12,5 +13,9 @@
 
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+
+    <string name="search_label">Search Label</string>
+    <string name="search_hint">Search hint</string>
+    <string name="settings_description">search settings</string>
 
 </resources>

@@ -4,7 +4,7 @@ import android.test.ApplicationTestCase;
 
 public class ApplicationTest extends ApplicationTestCase<NoteApp> {
     private NoteApp app;
-    private Db db;
+    private IDb db;
 
     public ApplicationTest() {
         super(NoteApp.class);

@@ -5,9 +5,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-/**
- * Created by alex on 2/2/17.
- */
 public class NoteAppService extends Service {
 
     @Override

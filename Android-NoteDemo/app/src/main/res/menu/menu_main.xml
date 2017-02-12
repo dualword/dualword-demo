@@ -2,6 +2,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.dualword.android.notedemo.MainActivity">
 
+    <item android:id="@+id/menu_search"
+        android:orderInCategory="1"
+        android:title="@string/menu_search"
+        android:icon="@drawable/ic_menu_search"
+        android:showAsAction="always"
+        android:actionViewClass="android.widget.SearchView" />
+
     <item
         android:id="@+id/menu_add"
         android:orderInCategory="10"

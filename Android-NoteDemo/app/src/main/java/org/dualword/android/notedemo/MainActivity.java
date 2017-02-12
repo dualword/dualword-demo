@@ -1,36 +1,23 @@
 package org.dualword.android.notedemo;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.app.SearchManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
+import android.content.*;
 
 public class MainActivity extends AbsNoteActivity {
     private ListView mListView;
     private Cursor cursor;
-    private ProgressDialog progress;
-    SimpleCursorAdapter adapter;
+    private SimpleCursorAdapter adapter;
     private BroadcastThreadReceiver rcv;
-    private boolean j;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,17 +52,31 @@ public class MainActivity extends AbsNoteActivity {
         adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
         mListView.setAdapter(adapter);
 
-        progress = new ProgressDialog(this);
-        progress.setCancelable(true);
-        progress.setMessage("In progress...");
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.setCanceledOnTouchOutside(false);
-
-        IntentFilter filter = new IntentFilter(NoteApp.INTENT_BROADCAST);
-        filter.addAction(NoteApp.INTENT_REQUERY);
+        IntentFilter filter = new IntentFilter(NoteApp.INTENT_REQUERY);
         rcv = new BroadcastThreadReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(rcv, filter);
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            showResults(query);
+        }
+    }
+
+    private void showResults(String query) {
+        Log.d(getClass().getSimpleName(), "showResults:" + query);
+        if(cursor != null)  {
+            cursor.close();
+            cursor = null;
+        }
+        cursor = db.search(query);
     }
 
     @Override
@@ -90,15 +91,36 @@ public class MainActivity extends AbsNoteActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        cursor = db.getAll();
-        showToast(cursor.getCount() + " notes in database.");
+        if(cursor == null) cursor = db.getAll();
+        showToast(cursor.getCount() + " notes.");
         adapter.changeCursor(cursor);
-        app.setActivity(this);
+        if(searchView != null && !searchView.isIconified()) searchView.setIconified(true);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-         getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setIconifiedByDefault(true);
+        searchView.setIconified(true);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                if (cursor != null) {
+                    cursor.close();
+                    cursor = null;
+                }
+                cursor = db.getAll();
+                showToast(cursor.getCount() + " notes.");
+                adapter.changeCursor(cursor);
+                return false;
+            }
+        });
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -124,8 +146,9 @@ public class MainActivity extends AbsNoteActivity {
         alert.setTitle("Delete All records?");
         alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int btn) {
-            db.resetDb();
-            hideProgress();  }
+                        db.resetDb();
+                        refresh();
+                    }
         } );
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int btn) {
@@ -166,16 +189,11 @@ public class MainActivity extends AbsNoteActivity {
         alert.show();
     }
 
-    public void showProgress(){
-        progress.show();
-    }
-
-    public void hideProgress(){
+    private void refresh(){
         if (cursor != null) {
             cursor.requery();
-            showToast(cursor.getCount() + " notes in database.");
+            showToast(db.getCount() + " notes in database.");
         }
-        progress.dismiss();
     }
 
     private class BroadcastThreadReceiver extends BroadcastReceiver {
@@ -183,14 +201,9 @@ public class MainActivity extends AbsNoteActivity {
         }
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Log.d(getClass().getSimpleName(), "onReceive");
-            if(intent.getAction() == NoteApp.INTENT_BROADCAST){
-                getActionBar().setTitle(j==true? "NoteDemo" : "NoteDemo.");
-                j = !j;
-            }else if(intent.getAction() == NoteApp.INTENT_REQUERY){
-                if (cursor != null) {
-                    cursor.requery();
-                    showToast(cursor.getCount() + " notes in database.");
+            if(intent.getAction() == NoteApp.INTENT_REQUERY){
+                synchronized(this) {
+                    refresh();
                 }
             }
         }
