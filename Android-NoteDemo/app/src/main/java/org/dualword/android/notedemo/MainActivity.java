@@ -4,20 +4,24 @@ import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import android.content.*;
 
-public class MainActivity extends AbsNoteActivity {
+import java.util.Locale;
+
+public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInitListener {
     private ListView mListView;
     private Cursor cursor;
     private SimpleCursorAdapter adapter;
     private BroadcastThreadReceiver rcv;
     private SearchView searchView;
+    private TextToSpeech tts;
+    private IntentFilter filter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +56,21 @@ public class MainActivity extends AbsNoteActivity {
         adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
         mListView.setAdapter(adapter);
 
-        IntentFilter filter = new IntentFilter(NoteApp.INTENT_REQUERY);
-        rcv = new BroadcastThreadReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(rcv, filter);
+        tts = new TextToSpeech(this, this);
 
+        filter = new IntentFilter(NoteApp.INTENT_REQUERY);
+        rcv = new BroadcastThreadReceiver();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+
+        super.onDestroy();
     }
 
     @Override
@@ -71,7 +86,7 @@ public class MainActivity extends AbsNoteActivity {
     }
 
     private void showResults(String query) {
-        Log.d(getClass().getSimpleName(), "showResults:" + query);
+        printLog("showResults:" + query);
         if(cursor != null)  {
             cursor.close();
             cursor = null;
@@ -81,6 +96,7 @@ public class MainActivity extends AbsNoteActivity {
 
     @Override
     protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(rcv);
         if(cursor != null)  {
             cursor.close();
             cursor = null;
@@ -95,6 +111,7 @@ public class MainActivity extends AbsNoteActivity {
         showToast(cursor.getCount() + " notes.");
         adapter.changeCursor(cursor);
         if(searchView != null && !searchView.isIconified()) searchView.setIconified(true);
+        LocalBroadcastManager.getInstance(this).registerReceiver(rcv, filter);
     }
 
     @Override
@@ -193,6 +210,21 @@ public class MainActivity extends AbsNoteActivity {
         if (cursor != null) {
             cursor.requery();
             showToast(db.getCount() + " notes in database.");
+        }
+    }
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = tts.setLanguage(Locale.US);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                printLog("TTS:Language is not supported");
+            }else {
+                printLog("TTS:TTS init");
+                int res = tts.speak("hello", TextToSpeech.QUEUE_ADD, null);
+            }
+        } else {
+            printLog("TTS:onInit Failed");
         }
     }
 
