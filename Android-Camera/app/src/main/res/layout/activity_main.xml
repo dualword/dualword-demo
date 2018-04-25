@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:orientation="horizontal"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+tools:context="org.dualword.demo.democamera.MainActivity">
+
+<FrameLayout
+    android:id="@+id/camera_preview"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="1"
+    />
+
+<ImageButton
+    android:id="@+id/button_capture"
+    android:src="@drawable/click"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_alignParentRight="true"
+    android:layout_centerVertical="true"
+    android:alpha="0.4"
+    style="?android:attr/borderlessButtonStyle"
+    />
+
+</RelativeLayout>
