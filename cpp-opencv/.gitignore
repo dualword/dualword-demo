@@ -1,0 +1,8 @@
+/.build/
+/cpp-opencv
+/Makefile
+
+/.cproject
+/.project
+/.externalToolBuilders
+/.settings
