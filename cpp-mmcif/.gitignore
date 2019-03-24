@@ -1,0 +1,8 @@
+/.build/
+/demo-mmcif
+/Makefile
+
+/.cproject
+/.project
+/.externalToolBuilders
+/.settings
