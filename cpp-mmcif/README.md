@@ -1,5 +1,5 @@
 
-http://github.com/dualword/dualword-demo/cpp-mmcif
+http://github.com/dualword/dualword-demo
 
 [PDBx/mmCIF](http://mmcif.wwpdb.org/)
 
