@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import de.greenrobot.event.EventBus;
+
 abstract class AbsIService extends IntentService {
 
     public AbsIService() {
@@ -17,11 +19,12 @@ abstract class AbsIService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.d(getClass().getSimpleName(), "onHandleIntent");
         if(intent == null) return;
+        Long t = System.currentTimeMillis();
         handleIntent(intent);
-        Intent localIntent = new Intent(NoteApp.INTENT_REQUERY);
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+        Log.d(this.getClass().getSimpleName(), intent.getAction() + " " + (System.currentTimeMillis() - t) + " ms.");
+        EventBus.getDefault().post(new MessageEvent(intent.getAction() + " " + (System.currentTimeMillis() - t) + " ms."));
+        EventBus.getDefault().post(new RefreshEvent());
     }
 
     abstract protected void handleIntent(Intent intent);

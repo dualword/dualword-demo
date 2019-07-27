@@ -2,11 +2,9 @@
 
 http://github.com/dualword/dualword-demo/
 
-minSdkVersion 11
+minSdkVersion 11, Intent Service, EventBus 2.4
 
-testing:
-Instrumented tests
-
+testing: Instrumented tests
 
 NonsenseGenerator class(Apache License) is from newsreader sample:[link](https://android.googlesource.com/platform/development/+/52c5a27426976853a8b57ea15f60f387e27af202/samples/training/multiscreen/newsreader)
 

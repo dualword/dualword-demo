@@ -59,22 +59,29 @@ public class NoteEditorActivity extends AbsNoteActivity {
         printLog("save...");
         note.setText(txt.getText().toString());
         if(note.getText() != null && note.getText().trim().length() > 0){
-            Intent intent = new Intent(this, CreateNoteIService.class);
-            intent.putExtra("org.dualword.android.notedemo.note", note);
-            startService(intent);
+            startService(NoteApp.ACTION_CREATE_NOTE);
         }
         finish();
     }
 
     public void delete() {
         printLog("delete...");
-        if(note.getId() != null) db.delete(note);
+        if(note.getId() != null){
+            startService(NoteApp.ACTION_DELETE_NOTE);
+        }
         finish();
     }
 
     public void cancel() {
         printLog("cancel...");
         finish();
+    }
+
+    private void startService(String action){
+        Intent intent = new Intent(this, CreateNotesIService.class);
+        intent.setAction(action);
+        intent.putExtra("org.dualword.android.notedemo.note", note);
+        startService(intent);
     }
 
 }

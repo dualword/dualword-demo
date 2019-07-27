@@ -13,17 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <service android:name=".NoteAppService"
-            android:exported="false"/>
-
-        <service android:name=".CreateNoteIService"
-            android:exported="false"/>
-
         <service android:name=".CreateNotesIService"
-            android:exported="false"/>
-
-        <service android:name=".NoteAppBService"
-            android:enabled="false"
             android:exported="false"/>
 
         <activity

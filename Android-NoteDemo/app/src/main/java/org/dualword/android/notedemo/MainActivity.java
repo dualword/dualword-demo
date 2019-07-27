@@ -5,23 +5,20 @@ import android.app.SearchManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.*;
 import android.widget.*;
 import android.content.*;
 
-import java.util.Locale;
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInitListener {
     private ListView mListView;
     private Cursor cursor;
     private SimpleCursorAdapter adapter;
-    private BroadcastThreadReceiver rcv;
     private SearchView searchView;
-    private TextToSpeech tts;
-    private IntentFilter filter;
+    //private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,19 +53,16 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
         adapter = new SimpleCursorAdapter(this, R.layout.noteslist_item, cursor, from, to);
         mListView.setAdapter(adapter);
 
-        tts = new TextToSpeech(this, this);
-
-        filter = new IntentFilter(NoteApp.INTENT_REQUERY);
-        rcv = new BroadcastThreadReceiver();
+        //tts = new TextToSpeech(this, this);
 
     }
 
     @Override
     protected void onDestroy() {
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
+//        if (tts != null) {
+//            tts.stop();
+//            tts.shutdown();
+//        }
 
         super.onDestroy();
     }
@@ -95,12 +89,20 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+
+    }
+
+    @Override
     protected void onStop() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(rcv);
         if(cursor != null)  {
             cursor.close();
             cursor = null;
         }
+
+        EventBus.getDefault().unregister(this);
         super.onStop();
     }
 
@@ -108,10 +110,10 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
     protected void onResume() {
         super.onResume();
         if(cursor == null) cursor = db.getAll();
-        showToast(cursor.getCount() + " notes.");
+        showToast(cursor.getCount() + " note(s).");
         adapter.changeCursor(cursor);
         if(searchView != null && !searchView.isIconified()) searchView.setIconified(true);
-        LocalBroadcastManager.getInstance(this).registerReceiver(rcv, filter);
+
     }
 
     @Override
@@ -132,7 +134,7 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
                     cursor = null;
                 }
                 cursor = db.getAll();
-                showToast(cursor.getCount() + " notes.");
+                showToast(cursor.getCount() + " note(s).");
                 adapter.changeCursor(cursor);
                 return false;
             }
@@ -163,8 +165,9 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
         alert.setTitle("Delete All records?");
         alert.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int btn) {
-                        db.resetDb();
-                        refresh();
+                        Intent intent = new Intent(getApplicationContext(), CreateNotesIService.class);
+                        intent.setAction(NoteApp.ACTION_DELETE);
+                        startService(intent);
                     }
         } );
         alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -193,7 +196,10 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
                 } catch (NumberFormatException e) {
                     return;
                 }
-                app.createRecords(j);
+                Intent intent = new Intent(getApplicationContext(), CreateNotesIService.class);
+                intent.setAction(NoteApp.ACTION_CREATE_DATA);
+                intent.putExtra(CreateNotesIService.INTENT_CREATE_NOTES, j);
+                startService(intent);
             }
         }
         );
@@ -209,36 +215,31 @@ public class MainActivity extends AbsNoteActivity implements TextToSpeech.OnInit
     private void refresh(){
         if (cursor != null) {
             cursor.requery();
-            showToast(db.getCount() + " notes in database.");
+            showToast(db.getCount() + " note(s) in database.");
         }
     }
 
     @Override
     public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            int result = tts.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                printLog("TTS:Language is not supported");
-            }else {
-                printLog("TTS:TTS init");
-                int res = tts.speak("hello", TextToSpeech.QUEUE_ADD, null);
-            }
-        } else {
-            printLog("TTS:onInit Failed");
-        }
+//        if (status == TextToSpeech.SUCCESS) {
+//            int result = tts.setLanguage(Locale.US);
+//            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+//                printLog("TTS:Language is not supported");
+//            }else {
+//                printLog("TTS:TTS init");
+//                int res = tts.speak("hello", TextToSpeech.QUEUE_ADD, null);
+//            }
+//        } else {
+//            printLog("TTS:onInit Failed");
+//        }
     }
 
-    private class BroadcastThreadReceiver extends BroadcastReceiver {
-        public BroadcastThreadReceiver() {
-        }
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(intent.getAction() == NoteApp.INTENT_REQUERY){
-                synchronized(this) {
-                    refresh();
-                }
-            }
-        }
-    }
+    public void onEventMainThread(MessageEvent event) {
+        showToast(event.getMsg());
+    };
+
+    public void onEventMainThread(RefreshEvent event) {
+        refresh();
+    };
 
 }

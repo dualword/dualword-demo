@@ -14,28 +14,12 @@ abstract public class AbsNoteActivity extends Activity {
     protected NoteApp app;
     protected IDb db;
 
-//    protected NoteAppBService srv;
-//    protected final ServiceConnection mConnection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName className, IBinder service) {
-//            srv = ((NoteAppBService.LocalBinder) service).getService();
-//            printLog("onServiceConnected " + srv.toString());
-//        }
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            printLog("onServiceDisconnected " );
-//        }
-//    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app = (NoteApp)getApplication();
         db = app.getDb();
         printLog("onCreate");
-
-//        Intent intent = new Intent(this, NoteAppBService.class);
-//        boolean b = bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -65,7 +49,6 @@ abstract public class AbsNoteActivity extends Activity {
     @Override
     protected void onDestroy() {
         printLog("onDestroy");
-        //unbindService(mConnection);
         super.onDestroy();
     }
 

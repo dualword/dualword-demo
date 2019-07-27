@@ -1,12 +1,14 @@
 package org.dualword.android.notedemo;
 
 import android.app.Application;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
 public class NoteApp extends Application {
-    public static String INTENT_REQUERY = "intent_requery";
+    public static String ACTION_CREATE_DATA = "create_data";
+    public static String ACTION_CREATE_NOTE = "create_note";
+    public static String ACTION_DELETE = "delete";
+    public static String ACTION_DELETE_NOTE = "delete_note";
 
     private IDb db;
     private boolean inMemory;
@@ -26,10 +28,6 @@ public class NoteApp extends Application {
         super.onCreate();
         Log.d(this.getClass().getSimpleName(), "onCreate");
         db.open();
-
-        //startService(new Intent(this, NoteAppService.class));
-         //stopService(new Intent(this, NoteAppService.class));
-
     }
 
     public IDb getDb(){
@@ -40,12 +38,6 @@ public class NoteApp extends Application {
     public void  onTrimMemory(int level) {
         Log.d(this.getClass().getSimpleName(), " onTrimMemory " + level);
         super.onTrimMemory(level);
-    }
-
-    public void createRecords(int num){
-        Intent intent = new Intent(this, CreateNotesIService.class);
-        intent.putExtra(CreateNotesIService.INTENT_CREATE_NOTES, num);
-        startService(intent);
     }
 
     //    private boolean isServiceRunning(Class<?> cls) {
