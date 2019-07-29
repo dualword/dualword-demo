@@ -1,0 +1,44 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        applicationId "com.example.android_exoplayer"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "0.0.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+ext {
+    exoVersion = '2.6.0'
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+
+    compile("com.google.android.exoplayer:exoplayer-core:${exoVersion}") {
+        exclude module: "support-annotations"
+        exclude group: "com.android.support"
+    }
+
+
+    compile("com.google.android.exoplayer:exoplayer-ui:${exoVersion}") {
+        exclude module: "support-annotations"
+        exclude group: "com.android.support"
+    }
+
+    compile 'com.android.support:support-v4:23.2.1'
+
+
+}
