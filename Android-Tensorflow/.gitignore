@@ -1,0 +1,33 @@
+
+
+/app/src/main/assets
+/app/src/main/libs
+/app/src/main/jni
+/app/src/main/obj
+
+# Android Studio
+.idea
+*.iml
+.gradle
+.navigation
+build
+local.properties
+settings.gradle
+gradle.properties
+
+#built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+
+# OSX files
+.DS_Store
